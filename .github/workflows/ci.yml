@@ -1,0 +1,67 @@
+name: Parts Unlimited CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    name: Test and build static site
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Show tool versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Run automated tests
+        shell: bash
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee test-results.log
+
+      - name: Build static distribution
+        run: npm run build
+
+      - name: Upload test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parts-unlimited-test-log
+          path: test-results.log
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload site distribution
+        uses: actions/upload-artifact@v4
+        with:
+          name: parts-unlimited-site
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Add run summary
+        if: always()
+        shell: bash
+        run: |
+          echo '## Parts Unlimited CI' >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: \`${GITHUB_SHA:0:7}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Result: ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
+          echo '- Test output: job log and artifact parts-unlimited-test-log' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Static site: artifact parts-unlimited-site (if build succeeded)' >> "$GITHUB_STEP_SUMMARY"
