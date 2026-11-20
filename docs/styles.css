@@ -1,0 +1,26 @@
+:root { color-scheme: light; font-family: system-ui, sans-serif; color: #20283a; background: #f6f8fb; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+header { background: linear-gradient(120deg,#122c4a,#275b8b); color: white; }
+header .wrap { padding-top: 50px; padding-bottom: 42px; }
+h1 { font-size: clamp(2rem, 4vw, 3.3rem); margin: 0 0 12px; }
+h2 { margin-top: 0; }
+.eyebrow { font-size: .75rem; letter-spacing: .11em; font-weight: 750; opacity: .8; }
+main { display: grid; grid-template-columns: 1fr 290px; align-items: start; gap: 25px; }
+.filters { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 12px; }
+label { display: grid; gap: 7px; font-weight: 650; font-size: .9rem; }
+input, select { padding: 10px; border: 1px solid #b8c2d0; border-radius: 8px; min-width: 220px; background: white; font: inherit; }
+.catalog { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 12px; }
+.product, aside { padding: 18px; background: white; border: 1px solid #e0e5ed; border-radius: 11px; box-shadow: 0 5px 14px #20283a08; }
+.product h3 { margin: 0 0 10px; font-size: 1.1rem; }
+.product p, .note { color: #637084; font-size: .85rem; }
+.product strong { display: block; font-size: 1.25rem; margin: 10px 0; }
+button { cursor: pointer; background: #1764a8; color: white; padding: 10px 12px; border: 0; border-radius: 7px; font: inherit; }
+button:hover { background: #0e457a; }
+button:disabled { background: #8b929b; cursor: not-allowed; }
+aside { position: sticky; top: 15px; }
+aside li { margin: 10px 0; }
+.total { font-weight: 750; font-size: 1.1rem; }
+footer { color: #667387; font-size: .8rem; }
+@media(max-width: 780px) { main { grid-template-columns: 1fr; } aside { position: static; } }

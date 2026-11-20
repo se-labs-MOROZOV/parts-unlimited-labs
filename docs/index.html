@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Parts Unlimited – учебный каталог</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="module" src="./site.mjs"></script>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <p class="eyebrow">ПРОГРАММНАЯ ИНЖЕНЕРИЯ · ТЕСТОВЫЙ ПРОЕКТ</p>
+      <h1>Parts Unlimited</h1>
+      <p>Демонстрационный каталог автомобильных запчастей для лабораторных работ.</p>
+    </div>
+  </header>
+  <main class="wrap">
+    <section aria-labelledby="catalog-heading">
+      <h2 id="catalog-heading">Каталог товаров</h2>
+      <div class="filters">
+        <label>Поиск по названию <input id="search" type="search" placeholder="Например, фильтр" /></label>
+        <label>Категория <select id="category"><option value="Все">Все</option></select></label>
+      </div>
+      <p id="count" role="status"></p>
+      <div id="catalog" class="catalog"></div>
+    </section>
+    <aside aria-labelledby="cart-heading">
+      <h2 id="cart-heading">Корзина</h2>
+      <ol id="cart-list"></ol>
+      <p class="total">Итого: <span id="total">0 ₽</span></p>
+      <p class="note">Демонстрация: оплата и регистрация пользователей не реализованы.</p>
+    </aside>
+  </main>
+  <footer class="wrap">Учебный проект. Все данные вымышлены.</footer>
+</body>
+</html>
