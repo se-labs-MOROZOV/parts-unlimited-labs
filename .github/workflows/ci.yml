@@ -1,4 +1,5 @@
-name: Parts Unlimited CI
+
+name: Parts Unlimited CI/CD
 
 on:
   push:
@@ -7,25 +8,31 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Минимальные права по умолчанию
 permissions:
   contents: read
 
+# Предотвращение одновременных публикаций одной ветки
+concurrency:
+  group: parts-unlimited-pages-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  test-and-build:
-    name: Test and build static site
+  build:
+    name: Build and test
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
-      - name: Checkout repository
+      - name: Checkout source code
         uses: actions/checkout@v6
 
-      - name: Configure Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '22'
 
-      - name: Show tool versions
+      - name: Display tool versions
         run: |
           node --version
           npm --version
@@ -36,8 +43,16 @@ jobs:
           set -o pipefail
           npm test 2>&1 | tee test-results.log
 
-      - name: Build static distribution
+      - name: Build the static site
         run: npm run build
+
+      - name: Verify build files
+        shell: bash
+        run: |
+          test -f dist/index.html
+          test -f dist/styles.css
+          test -f dist/catalog.mjs
+          test -f dist/site.mjs
 
       - name: Upload test log
         if: always()
@@ -48,7 +63,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-      - name: Upload site distribution
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: parts-unlimited-site
@@ -56,12 +71,40 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Add run summary
-        if: always()
-        shell: bash
-        run: |
-          echo '## Parts Unlimited CI' >> "$GITHUB_STEP_SUMMARY"
-          echo "- Commit: \`${GITHUB_SHA:0:7}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Result: ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
-          echo '- Test output: job log and artifact parts-unlimited-test-log' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Static site: artifact parts-unlimited-site (if build succeeded)' >> "$GITHUB_STEP_SUMMARY"
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: parts-unlimited-site
+          path: ./site-to-deploy
+
+      - name: Verify deployment payload
+        run: test -f site-to-deploy/index.html
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Package Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./site-to-deploy
+
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
